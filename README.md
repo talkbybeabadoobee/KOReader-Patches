@@ -1,2 +1,2 @@
 # KOReader-Patches
-Patches made by me / not on the Storefront plugin
+Patches and plugins made by me / not on the Storefront plugin
