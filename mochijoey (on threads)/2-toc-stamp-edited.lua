@@ -10,6 +10,7 @@
       * page navigation: ‹ Page 2 / 7 ›  (or swipe left / right)
 
     Install:  copy to  koreader/patches/2-toc-stamp-edited.lua  and restart KOReader.
+              (remove the old 2-toc-stamp.lua so only one version is active)
     Use:      open the Table of contents the normal way (top menu -> ToC icon,
               or your existing ToC gesture). The built-in action is replaced,
               so no new gesture assignment is needed.
@@ -168,7 +169,7 @@ local TocCard = InputContainer:extend{
 }
 
 function TocCard:init()
-    self.dimen = Geom:new{ x = 0, y = 0, w = Screen:getWidth(), h = Screen:getHeight() }
+    self.dimen = Geom:new{ w = Screen:getWidth(), h = Screen:getHeight() }
     self.ges_events = {
         TapOutside = { GestureRange:new{ ges = "tap", range = self.dimen } },
         Swipe      = { GestureRange:new{ ges = "swipe", range = self.dimen } },
@@ -221,7 +222,7 @@ function TocCard:changePage(delta)
     if np ~= self.page then
         self.page = np
         self:build()
-        UIManager:setDirty(self, "ui", Geom:new{ x = 0, y = 0, w = Screen:getWidth(), h = Screen:getHeight() })
+        UIManager:setDirty(self, "ui")
     end
 end
 
@@ -338,6 +339,11 @@ function TocCard:onClose()
     return true
 end
 
+function TocCard:paintTo(bb, x, y)
+    bb:paintRect(x, y, self.dimen.w, self.dimen.h, WHITE)
+    InputContainer.paintTo(self, bb, x, y)
+end
+
 ------------------------------------------------------------------------
 -- Replace the built-in "show table of contents"
 ------------------------------------------------------------------------
@@ -354,7 +360,9 @@ function ReaderToc:onShowToc()
     if not items or #items == 0 then
         return orig_onShowToc(self) -- built-in "no table of contents" message
     end
-    local full = Geom:new{ x = 0, y = 0, w = Screen:getWidth(), h = Screen:getHeight() }
-    UIManager:show(TocCard:new{ ui = self.ui, toc = self, items = items }, "ui", full)
+    -- Show with an explicit full-screen refresh. When opened from a gesture/button
+    -- (no menu being closed first) the default refresh only covered part of the screen.
+    local card = TocCard:new{ ui = self.ui, toc = self, items = items }
+    UIManager:show(card, "full", Geom:new{ x = 0, y = 0, w = Screen:getWidth(), h = Screen:getHeight() })
     return true
 end
