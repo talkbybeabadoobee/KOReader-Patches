@@ -1,5 +1,5 @@
 --[[
-    2-toc-stamp-original.lua  (KOReader user patch)
+    2-toc-stamp.lua  (KOReader user patch)
 
     Restyles the Table of Contents to match the stamp-style book info card:
       * perforated stamp frame with dotted inner outline
